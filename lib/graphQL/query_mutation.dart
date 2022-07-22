@@ -1,7 +1,7 @@
 class QueryAndMutation {
-  static final String login = r"""
-        mutation login($user: LoginInput){
-          login(user:$user){
+  static final String login = """
+        mutation(\$user: LoginInput){
+          login(user:\$user){
             email
             nickname
           }

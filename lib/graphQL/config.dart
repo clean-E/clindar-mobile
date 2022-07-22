@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class Config {
-  static final HttpLink _httpLink = HttpLink('http://172.0.0.1/graphql');
+  static final HttpLink _httpLink = HttpLink('http://10.0.2.2:3000/graphql');
 
   // static final AuthLink _authLink = AuthLink(
   //   getToken: () async => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',

@@ -22,6 +22,7 @@ class HomePage extends StatelessWidget {
               );
             } else if (snapshot.hasData) {
               // 로그인 데이터 o
+              print('snapshot : ${snapshot}');
               return LoggedInWidget();
             } else if (snapshot.hasError) {
               return Center(

@@ -70,9 +70,9 @@ class SignUpWidget extends StatelessWidget {
                     await provider.googleLogin();
 
                     final user = FirebaseAuth.instance.currentUser!;
-                    print('user : ${user}');
+                    //print('user : ${user}');
                     runMutation({
-                      'LoginInput': {'email': user.email, 'nickname': ""}
+                      'user': {'email': user.email, 'nickname': ""}
                     });
                   },
                   icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
