@@ -39,16 +39,6 @@ class SignUpWidget extends StatelessWidget {
             ),
           ),
           Spacer(),
-          // ElevatedButton.icon(
-          //     onPressed: () {
-          //       final provider =
-          //           Provider.of<GoogleSignInProvider>(context, listen: false);
-          //       provider.googleLogin();
-          //       print('provider : ${provider}');
-          //     },
-          //     icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
-          //     label: Text('Sign Up with Google')),
-
           Mutation(
               options: MutationOptions(
                   document: gql(QueryAndMutation.login),
@@ -70,7 +60,6 @@ class SignUpWidget extends StatelessWidget {
                     await provider.googleLogin();
 
                     final user = FirebaseAuth.instance.currentUser!;
-                    //print('user : ${user}');
                     runMutation({
                       'user': {'email': user.email, 'nickname': ""}
                     });

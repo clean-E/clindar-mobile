@@ -1,7 +1,11 @@
+import 'package:clindar_mobile/graphQL/query_mutation.dart';
 import 'package:clindar_mobile/provider/login_service.dart';
+import 'package:clindar_mobile/widget/logged_in_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class JoinPage extends StatefulWidget {
   // 앱 메인페이지
@@ -14,8 +18,9 @@ class JoinPage extends StatefulWidget {
 class _JoinPageState extends State<JoinPage> {
   late TextEditingController _emailController;
   late TextEditingController _nicknameController;
-  late GoogleSignInAccount _account;
-  late UserProvider userProvider = UserProvider();
+  final user = FirebaseAuth.instance.currentUser!;
+  // late GoogleSignInAccount _account;
+  // late UserProvider userProvider = UserProvider();
 
   _JoinPageState() {
     _emailController = TextEditingController();
@@ -26,15 +31,8 @@ class _JoinPageState extends State<JoinPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    if (Get.arguments.containsKey('account')) {
-      _account = Get.arguments['account'];
-    } else {
-      Get.offAllNamed('/login_screen');
-    }
-    // if (args != null) {
-    //   var find = Get.find<Member>();
-    //   User user = find.getMember(args['index']);
-    _emailController.text = _account.email;
+
+    _emailController.text = user.email!;
   }
 
   @override
@@ -64,36 +62,34 @@ class _JoinPageState extends State<JoinPage> {
             Padding(
               padding: EdgeInsets.all(40),
               child: FractionallySizedBox(
-                widthFactor: 1,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                        Color.fromARGB(207, 223, 176, 181)),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    )),
-                  ),
-                  onPressed: () {
-                    // userProvider.addUser(
-                    //     _emailController.text,
-                    //     _nicknameController.text,
-                    // userProvider
-                    //     .loginUser(_account.email, _account.email)
-                    //     .then((value) {
-                    //   Get.offAllNamed('/home_page', arguments: {
-                    //     'account': _account,
-                    //     'user': userProvider
-                    //   }
-                    //   );
-                    // }
-                    // );
-                  },
-                  child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 15),
-                      child: Text('Register')),
-                ),
-              ),
+                  widthFactor: 1,
+                  child: Mutation(
+                      options: MutationOptions(
+                        document: gql(QueryAndMutation.setNickname),
+                        update: (cache, result) {
+                          return cache;
+                        },
+                        onCompleted: ((data) {
+                          print('N Mutation data:${data}');
+                          return LoggedInWidget();
+                        }),
+                        onError: (error) {
+                          print('N error:${error}');
+                        },
+                      ),
+                      builder: ((runMutation, result) => ElevatedButton(
+                            onPressed: () {
+                              runMutation({
+                                'user': {
+                                  'email': user.email,
+                                  'nickname': _nicknameController.text
+                                }
+                              });
+                            },
+                            child: Container(
+                                margin: EdgeInsets.symmetric(vertical: 15),
+                                child: Text('Register')),
+                          )))),
             ),
           ],
         ),

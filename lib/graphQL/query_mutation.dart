@@ -8,11 +8,23 @@ class QueryAndMutation {
         }
 """;
 
-  static final String setNickname = r"""
-        mutation ($user: NicknameInput){
-          setNickname(user:$user){
+  static final String setNickname = """
+        mutation(\$user: NicknameInput){
+          setNickname(user:\$user){
             email
             nickname
+          }
+        }
+""";
+
+  static final String getMyPage = """
+        query(\$user : UserEmail) {
+          getMyPage(user: \$user) {
+            email
+            nickname
+            myGroupList {
+      gname
+    }
           }
         }
 """;
