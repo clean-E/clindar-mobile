@@ -1,10 +1,7 @@
 import 'package:clindar_mobile/graphQL/query_mutation.dart';
-import 'package:clindar_mobile/provider/login_service.dart';
 import 'package:clindar_mobile/widget/logged_in_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 class JoinPage extends StatefulWidget {
@@ -19,8 +16,6 @@ class _JoinPageState extends State<JoinPage> {
   late TextEditingController _emailController;
   late TextEditingController _nicknameController;
   final user = FirebaseAuth.instance.currentUser!;
-  // late GoogleSignInAccount _account;
-  // late UserProvider userProvider = UserProvider();
 
   _JoinPageState() {
     _emailController = TextEditingController();
