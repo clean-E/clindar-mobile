@@ -1,8 +1,10 @@
 import 'package:clindar_mobile/graphQL/query_mutation.dart';
-import 'package:clindar_mobile/widget/logged_in_widget.dart';
+import 'package:clindar_mobile/provider/google_sign_in.dart';
+import 'package:clindar_mobile/view/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:provider/provider.dart';
 
 class JoinPage extends StatefulWidget {
   // 앱 메인페이지
@@ -66,20 +68,25 @@ class _JoinPageState extends State<JoinPage> {
                         },
                         onCompleted: ((data) {
                           print('N Mutation data:${data}');
-                          return LoggedInWidget();
+                          // return HomePage();
                         }),
                         onError: (error) {
                           print('N error:${error}');
                         },
                       ),
                       builder: ((runMutation, result) => ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              final user = FirebaseAuth.instance.currentUser!;
                               runMutation({
                                 'user': {
                                   'email': user.email,
                                   'nickname': _nicknameController.text
                                 }
                               });
+                              final provider =
+                                  Provider.of<GoogleSignInProvider>(context,
+                                      listen: false);
+                              await provider.googleLogin();
                             },
                             child: Container(
                                 margin: EdgeInsets.symmetric(vertical: 15),
