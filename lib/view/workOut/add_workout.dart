@@ -1,5 +1,6 @@
 import 'package:clindar_mobile/event.dart';
 import 'package:clindar_mobile/graphQL/query_mutation.dart';
+import 'package:clindar_mobile/provider/add_schedule_prov.dart';
 import 'package:clindar_mobile/theme/light_colors.dart';
 import 'package:clindar_mobile/view/home.dart';
 import 'package:clindar_mobile/widget/btn/back_button.dart';
@@ -15,6 +16,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:provider/provider.dart';
 
 class AddWorkOut extends StatefulWidget {
   AddWorkOut(
@@ -183,94 +185,154 @@ class _AddWorkOutState extends State<AddWorkOut> {
             ],
           ),
           Spacer(),
-          FractionallySizedBox(
-            widthFactor: 1,
-            child: Mutation(
-                options: MutationOptions(
-                  document: gql(QueryAndMutation.createSchedule),
-                  update: (cache, result) {
-                    return cache;
-                  },
-                  onCompleted: ((data) {
-                    print('S Mutation data:${data}');
-                    // return HomePage();
-                  }),
-                  onError: (error) {
-                    print('S error:${error}');
-                  },
+          // Consumer<AddScheduleProvider>(builder: ((context, value, child) {
+          //   WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+          //     if (value.getResponse != '') {
+          //       ScaffoldMessenger.of(context)
+          //           .showSnackBar(SnackBar(content: Text(value.getResponse)));
+          //       value.clear();
+          //     }
+          //   });
+          //   return
+          // Build method가 끝난 후 callback
+          Consumer<AddScheduleProvider>(builder: (context, schedule, child) {
+            WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+              if (schedule.getResponse == '') {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(schedule.getResponse)));
+                schedule.clear();
+              }
+            });
+            return GestureDetector(
+              onTap: schedule.getStatus == true
+                  ? null
+                  : () {
+                      if (where.isNotEmpty) {
+                        schedule.addSchedule(
+                            email: widget.userInfo['email'],
+                            category: category,
+                            when: when.toString(),
+                            nickname: widget.userInfo['nickname'],
+                            memo: _memoController.text,
+                            where: where,
+                            group: group,
+                            status: 'Pending'); // 보류 중
+                      }
+                    },
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Text(
+                    schedule.getStatus == true
+                        ? 'Loading...'
+                        : 'Create WorkOut',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18),
+                  ),
                 ),
-                builder: ((runMutation, result) => TextButton(
-                      onPressed: () async {
-                        final user = FirebaseAuth.instance.currentUser!;
-                        if (where == '') {
-                        } else {
-                          runMutation({
-                            'schedule': {
-                              'email': user.email,
-                              'category': category,
-                              'when': when.toString(),
-                              'who': {
-                                'host': widget.userInfo['nickname'],
-                                'guest': [
-                                  {
-                                    'nickname': widget.userInfo['nickname'],
-                                    'record': []
-                                  }
-                                ]
-                              },
-                              'memo': _memoController.text,
-                              'where': where,
-                              'group': group
-                            }
-                          });
-                          DateTime date = DateTime.parse(
-                              when.toString().substring(0, 10) +
-                                  ' 00:00:00.000Z');
-                          if (widget.selectedEvents[date] != null) {
-                            widget.selectedEvents[date]!.add(
-                              Event(
-                                  when: when,
-                                  where: where,
-                                  category: category,
-                                  id: ''),
-                            );
-                          } else {
-                            widget.selectedEvents[date] = [
-                              Event(
-                                  when: when,
-                                  where: where,
-                                  category: category,
-                                  id: '')
-                            ];
-                          }
-                        }
-                        Navigator.pop(context);
-                        widget.setSchedule();
-                        return;
-                      },
-                      child: Container(
-                        child: Padding(
-                          padding: const EdgeInsets.all(15),
-                          child: Text(
-                            'Create WorkOut',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.fromLTRB(20, 10, 20, 20),
-                        width: width * 0.8,
-                        decoration: BoxDecoration(
-                          color: LightColors.kBlue,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ))),
-          )
+                alignment: Alignment.center,
+                margin: EdgeInsets.fromLTRB(20, 10, 20, 20),
+                width: width * 0.8,
+                decoration: BoxDecoration(
+                  color: schedule.getStatus == true
+                      ? Colors.grey
+                      : LightColors.kBlue,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            );
+          })
+          // ;}))
         ],
       ),
     );
   }
 }
+// FractionallySizedBox(
+//   widthFactor: 1,
+//   child: Mutation(
+//       options: MutationOptions(
+//         document: gql(QueryAndMutation.createSchedule),
+//         update: (cache, result) {
+//           return cache;
+//         },
+//         onCompleted: ((data) {
+//           print('S Mutation data:${data}');
+//           // return HomePage();
+//         }),
+//         onError: (error) {
+//           print('S error:${error}');
+//         },
+//       ),
+//       builder: ((runMutation, result) => TextButton(
+//             onPressed: () async {
+//               final user = FirebaseAuth.instance.currentUser!;
+//               if (where == '') {
+//               } else {
+//                 runMutation({
+//                   'schedule': {
+//                     'email': user.email,
+//                     'category': category,
+//                     'when': when.toString(),
+//                     'who': {
+//                       'host': widget.userInfo['nickname'],
+//                       'guest': [
+//                         {
+//                           'nickname': widget.userInfo['nickname'],
+//                           'record': []
+//                         }
+//                       ]
+//                     },
+//                     'memo': _memoController.text,
+//                     'where': where,
+//                     'group': group
+//                   }
+//                 });
+//                 DateTime date = DateTime.parse(
+//                     when.toString().substring(0, 10) +
+//                         ' 00:00:00.000Z');
+//                 if (widget.selectedEvents[date] != null) {
+//                   widget.selectedEvents[date]!.add(
+//                     Event(
+//                         when: when,
+//                         where: where,
+//                         category: category,
+//                         id: ''),
+//                   );
+//                 } else {
+//                   widget.selectedEvents[date] = [
+//                     Event(
+//                         when: when,
+//                         where: where,
+//                         category: category,
+//                         id: '')
+//                   ];
+//                 }
+//               }
+//               Navigator.pop(context);
+//               widget.setSchedule();
+//               return;
+//             },
+//             child: Container(
+//               child: Padding(
+//                 padding: const EdgeInsets.all(15),
+//                 child: Text(
+//                   'Create WorkOut',
+//                   style: TextStyle(
+//                       color: Colors.white,
+//                       fontWeight: FontWeight.w700,
+//                       fontSize: 18),
+//                 ),
+//               ),
+//               alignment: Alignment.center,
+//               margin: EdgeInsets.fromLTRB(20, 10, 20, 20),
+//               width: width * 0.8,
+//               decoration: BoxDecoration(
+//                 color: LightColors.kBlue,
+//                 borderRadius: BorderRadius.circular(30),
+//               ),
+//             ),
+//           ))),
+// )

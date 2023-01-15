@@ -51,6 +51,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "628995062960-cpmjohnc12fl3nc766aurklhov3n4uf1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.clindar_mobile",
+            "certificate_hash": "43ddb67a50ed3bf9688bffb3e33dd6f0d247160c"
+          }
+        },
+        {
           "client_id": "628995062960-os58cj3i8frmhj6kkldb3im7cuqkd2qv.apps.googleusercontent.com",
           "client_type": 3
         }

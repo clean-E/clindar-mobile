@@ -1,88 +1,84 @@
-// import 'package:clindar_flutter/graphQL.dart/mutations.dart';
+import 'package:clindar_mobile/graphQL/config.dart';
 import 'package:clindar_mobile/graphQL/query_mutation.dart';
-import 'package:clindar_mobile/view/signature/join.dart';
-import 'package:clindar_mobile/view/home.dart';
-import 'package:clindar_mobile/view/signature/sign_up.dart';
-import 'package:clindar_mobile/widget/bar/tab_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:clindar_mobile/provider/google_sign_in.dart';
+import 'package:clindar_mobile/widget/btn/elevated_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:provider/provider.dart';
 
-class LoginService extends StatefulWidget {
-  @override
-  State<LoginService> createState() => _LoginServiceState();
-}
+class UserProvider extends ChangeNotifier {
+  String token = '';
+  String id = '';
+  String nickname = '';
+  bool _loginStatus = false;
+  String _response = '';
+  late GoogleSignInProvider _user;
 
-class _LoginServiceState extends State<LoginService> {
-  @override
-  Widget build(BuildContext context) {
-    void setPage() {
-      setState(() {});
+  bool get getLoginStatus => _loginStatus;
+  String get getResponse => _response;
+  GoogleSignInProvider get user => _user;
+
+  final Config _config = Config();
+
+  Future<void> getUser(String email, String nickname) async {
+    ValueNotifier<GraphQLClient> _client = Config.initClient();
+
+    QueryResult result = await _client.value.query(QueryOptions(
+      document: gql(QueryAndMutation.getUser),
+      // fetchPolicy: isLocal == true ? null : FetchPolicy.networkOnly
+    ));
+
+    if (result.hasException) {
+      print(result.exception);
+      _loginStatus = false;
+      if (result.exception!.graphqlErrors.isEmpty) {
+        _response = 'Internet is not found';
+      } else {
+        _response = result.exception!.graphqlErrors[0].message.toString();
+      }
+      notifyListeners();
+    } else {
+      print(result.data);
+      _loginStatus = false;
+      token = result.data!['token'];
+      id = result.data!['id'];
+      nickname = result.data!['nickname'];
+      notifyListeners();
     }
 
-    return Scaffold(
-      body: StreamBuilder(
-          //<Object>
-          stream: FirebaseAuth.instance.authStateChanges(), // 로그인 상태
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasData) {
-              // 로그인 데이터 o
-              final user = FirebaseAuth.instance.currentUser!;
-              return Query(
-                  options: QueryOptions(
-                      document: gql(QueryAndMutation.getMyPage),
-                      variables: {
-                        'user': {'email': user.email}
-                      }),
-                  builder: ((result, {fetchMore, refetch}) {
-                    print('result.data: ${result.data}');
-                    if (result.hasException) {
-                      print(result.exception.toString());
-                      return Text(result.exception.toString());
-                    }
-                    if (result.isLoading) {
-                      return Center(child: Text('Loading..'));
-                    } else if (result.data!['getMyPage']['nickname'] == '') {
-                      return JoinPage();
-                    } else {
-                      return Query(
-                          options: QueryOptions(
-                              document: gql(QueryAndMutation.getAllSchedule),
-                              variables: {
-                                'schedule': {'email': user.email}
-                              }),
-                          builder: (schedule, {fetchMore, refetch}) {
-                            if (schedule.isLoading) {
-                              return CircularProgressIndicator();
-                            } else {
-                              if (schedule.data?['getAllSchedule'] != null) {
-                                // print(
-                                //     'schedule.data?["getAllSchedule"]: ${schedule.data?['getAllSchedule']}');
-                                return HomeTabBar(
-                                  mySchedules: schedule.data!['getAllSchedule'],
-                                  userInfo: result.data!['getMyPage'],
-                                );
-                              } else {
-                                return HomeTabBar(
-                                  mySchedules: [],
-                                  userInfo: result.data!['getMyPage'],
-                                );
-                              }
-                            }
-                          });
-                    }
-                  }));
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Something Went Wrong!'),
-              );
-            } else {
-              // 로그인 데이터 x
-              return SignUpPage();
-            }
-          }),
-    );
+    // Mutation(
+    //   builder: (MultiSourceResult<dynamic> Function(Map<String, dynamic>, {Object? optimisticResult}) runMutation, QueryResult<dynamic>? result) => ElevatedBtn(
+    //     text: 'Sign Up with Google',
+    //     runMutation: runMutation({
+    //                     'user': {'email': _user.email, 'nickname': _user.nickname}
+    //                   });),
+    //   options:  MutationOptions(
+    //               document: gql(QueryAndMutation.login),
+    //               update: (GraphQLDataProxy cache, result) {
+    //                 return cache;
+    //               },
+    //               onCompleted: (data) {
+    //                 //mutation이 완료되었을 때 실행되는 부분
+    //                 print('Mutation data:${data}');
+    //               },
+    //               onError: (e) {
+    //                 //error시 실행되는 부분
+    //                 print('error:${e}');
+    //               }),);
+  }
+
+  dynamic getResposneData() {
+    if (id.isNotEmpty) {
+      final data = id;
+      print(id);
+      return data ?? '';
+    } else {
+      return '';
+    }
+  }
+
+  void clear() {
+    _response = '';
+    notifyListeners();
   }
 }

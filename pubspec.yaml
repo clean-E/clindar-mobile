@@ -38,6 +38,7 @@ dependencies:
   table_calendar: ^3.0.6
   intl: ^0.17.0
   number_inc_dec: ^0.8.0
+  # hive: ^2.2.3
   # shared_preferences: ^2.0.15 # 인증정보 저장
 
   # The following adds the Cupertino Icons font to your application.

@@ -11,13 +11,15 @@ class Config {
   // static final Link link = _authLink.concat(_httpLink);
 
   static ValueNotifier<GraphQLClient> initClient() {
-    ValueNotifier<GraphQLClient> client = ValueNotifier(
+    ValueNotifier<GraphQLClient> _client = ValueNotifier(
       GraphQLClient(
         link: _httpLink,
-        cache: GraphQLCache(),
+        cache: GraphQLCache(
+            // store: HiveStore()
+            ), // 기본 메모리 저장소 : 인터넷에 연결되어 있지 않아도 데이터를 가져올 수 있다
       ),
     );
 
-    return client;
+    return _client;
   }
 }

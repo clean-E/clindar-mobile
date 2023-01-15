@@ -1,7 +1,7 @@
 class QueryAndMutation {
   static final String login = """
-        mutation(\$user: LoginInput){
-          login(user:\$user){
+        mutation(\$userInfo: CreateUserInput!){
+          login(userInfo:\$userInfo){
             email
             nickname
           }
@@ -9,131 +9,176 @@ class QueryAndMutation {
 """;
 
   static final String setNickname = """
-        mutation(\$user: NicknameInput){
-          setNickname(user:\$user){
+        mutation(\$userInfo: UpdateUserInput!){
+          setNickname(userInfo:\$userInfo){
             email
             nickname
+          }
+        }
+""";
+
+  static final String getUser = """
+        query(\$email: String!) {
+          getUser(email: \$email) {
+            email
+            nickname
+          }
+        }
+""";
+  static final String getAllUser = """
+        query {
+          getAllUser {
+						_id
+            nickname
+          }
+        }
+""";
+
+  static final String deleteUser = """
+        mutation(\$email: String) {
+          deleteUser(email: \$email) {
 						success
           }
         }
 """;
 
-  static final String getMyPage = """
-        query(\$user: UserEmail) {
-          getMyPage(user: \$user) {
-            email
-            nickname
-            myGroupList
-          }
-        }
+  static final String createSchedulePage = """
+				query createSchedulePage {
+					getAllUser{
+						_id
+						nickname
+					}
+					getAllGroup{
+						_id
+						gname
+					}
+				}
 """;
 
-  static final String getAllSchedule = """
-  query (\$schedule: UserEmail){
-    getAllSchedule(schedule: \$schedule){
-      _id
-      category
-      where
-      when
-      who{
-        host
-        guest{
-          nickname
-          record{
-            level
-            count
-          }
-        }
-      }
-      memo
-      group
-    }
-  }
+  static final String getMainPageData = """
+				query getMainPageData (\$email: String){
+					getMySchedule(email: \$email){
+						_id
+			      category
+			      spot
+			      when
+			      group
+					}
+					getGroupSchedule(email: \$email){
+						_id
+			      category
+			      spot
+			      when
+			      group
+					}
+				}
+""";
+
+  static final String getMySchedule = """
+			  query (\$email: String){
+			    getMySchedule(email: \$email){
+			      _id
+			      category
+			      spot
+			      when
+			      group{
+							groupName
+						}
+			    }
+			  }
 """;
 
   static final String getGroupSchedule = """
-  query (\$schedule: UserEmail){
-    getGroupSchedule(schedule: \$schedule){
-      _id
-      category
-      where
-      when
-      who{
-        host
-        guest{
-          nickname
-          record{
-            level
-            count
-          }
-        }
-      }
-      memo
-      group
-    }
-  }
+			  query (\$email: String){
+			    getGroupSchedule(email: \$email){
+			      _id
+			      category
+			      spot
+			      when
+			      group
+			    }
+			  }
 """;
 
   static final String getScheduleDetail = """
-  query (\$schedule: ScheduleId){
-    getScheduleDetail(schedule: \$schedule){
-      _id
+  query (\$_id: String){
+    getScheduleDetail(_id: \$_id){
+			_id
       category
-      where
       when
-      who{
-        host
-        guest{
-          nickname
-          record{
-            level
-            count
-          }
+			spot
+	    host{
+				nickname
+			}
+      guest{
+        user{
+					nickname
+				}
+        records{
+          level
+					nameOrColor
+					count
         }
       }
       memo
-      group
+      group{
+				groupName
+			}
     }
   }
 """;
 
+  static final String getAllSpot = """
+        query {
+          getAllSpot {
+            _id
+						spotName
+						spotBranch
+						address
+						category
+          }
+        }
+""";
+
+  static final String getSpotDetail = """
+		query (\$_id: String){
+			getSpotDetail(_id: \$spotId) {
+				_id
+				spotName
+				spotBranch
+				address
+				phase {
+					level
+					nameOrColor
+				}
+				category
+			}
+		}
+""";
   static final String createSchedule = """
   mutation (\$schedule: CreateScheduleInput){
     createSchedule(schedule: \$schedule){
       _id
       category
-      where
       when
-      who{
-        host
-        guest{
-          nickname
-          record{
-            level
-            count
-          }
+			spot
+	    host{
+				nickname
+			}
+      guest{
+        user{
+					nickname
+				}
+        records{
+          level
+					nameOrColor
+					count
         }
       }
       memo
-      group
-    }
-  }
-""";
-
-  static final String deleteSchedule = """
-  mutation (\$schedule: DeleteScheduleInput){
-    deleteSchedule(schedule: \$schedule){
-      message
-			success
-    }
-  }
-""";
-
-  static final String comeoutSchedule = """
-  mutation (\$schedule: comeoutScheduleInput){
-    comeoutSchedule(schedule: \$schedule){
-      message
-			success
+      group{
+				groupName
+			}
     }
   }
 """;
@@ -143,16 +188,67 @@ class QueryAndMutation {
     editSchedule(schedule: \$schedule){
       _id
       category
-      where
       when
-      who{
-        host
-        guest{
-          nickname
-          record{
-            level
-            count
-          }
+			spot
+	    host
+      guest{
+        nickname
+        record{
+          level
+					nameOrColor
+					count
+        }
+      }
+      memo
+      group
+    }
+  }
+""";
+
+  static final String deleteSchedule = """
+  mutation (\$_id: String, \$email: String){
+    deleteSchedule(_id: \$_id, email: \$email){
+			success
+    }
+  }
+""";
+
+  static final String joinSchedule = """
+  mutation (\$_id: String, \$email: String){
+    joinSchedule(_id: \$_id, email: \$email){
+      _id
+      category
+      when
+			spot
+	    host
+      guest{
+        nickname
+        record{
+          level
+					nameOrColor
+					count
+        }
+      }
+      memo
+      group
+    }
+  }
+""";
+
+  static final String comeoutSchedule = """
+  mutation (\$_id: String, \$email: String){
+    comeoutSchedule(_id: \$_id, email: \$email){
+      _id
+      category
+      when
+			spot
+	    host
+      guest{
+        nickname
+        record{
+          level
+					nameOrColor
+					count
         }
       }
       memo
@@ -162,43 +258,19 @@ class QueryAndMutation {
 """;
 
   static final String inviteSchedule = """
-  mutation (\$schedule: InviteScheduleInput){
-    inviteSchedule(schedule: \$schedule){
+  mutation (\$_id: String, \$email: String, \$guest: String){
+    joinSchedule(_id: \$_id, email: \$email, guest: \$guest){
       _id
       category
-      where
       when
-      who{
-        host
-        guest{
-          nickname
-          record{
-            level
-            count
-          }
-        }
-      }
-      memo
-      group
-    }
-  }
-""";
-
-  static final String joinSchedule = """
-  mutation (\$schedule: JoinScheduleInput){
-    joinSchedule(schedule: \$schedule){
-      _id
-      category
-      where
-      when
-      who{
-        host
-        guest{
-          nickname
-          record{
-            level
-            count
-          }
+			spot
+	    host
+      guest{
+        nickname
+        record{
+          level
+					nameOrColor
+					count
         }
       }
       memo
@@ -208,24 +280,23 @@ class QueryAndMutation {
 """;
 
   static final String editRecord = """
-  mutation (\$schedule: EditRecordInput){
-    editRecord(schedule: \$schedule){
+  mutation (\$records: RecordInput){
+    editRecord(records: \$records){
       _id
       category
-      where
       when
-      who{
-        host
-        guest{
-          nickname
-          record{
-            level
-            count
-          }
+			spot
+	    host
+      guest{
+        nickname
+        record{
+          level
+					nameOrColor
+					count
         }
       }
       memo
-      group                                                                                  
+      group
     }
   }
 """;
@@ -235,36 +306,28 @@ class QueryAndMutation {
     getAllGroup{
       _id
       gname
-      leader
-      createdAt
-      description
-      memberList
       mainCategory
+			age
       secret
-			image
     }
   }
 """;
 
   static final String getMyGroup = """
-  query (\$group: UserEmail){
-    getMyGroup(group: \$group){
+  query (\$email: String){
+    getMyGroup(email: \$email){
       _id
       gname
-      leader
-      createdAt
-      description
-      memberList
       mainCategory
+			age
       secret
-			image
     }
   }
 """;
 
   static final String getGroupDetail = """
-  query (\$group: GroupId){
-    getGroupDetail(group: \$group){
+  query (\$_id: String){
+    getGroupDetail(_id: \$_id){
       _id
       gname
       leader
@@ -272,15 +335,22 @@ class QueryAndMutation {
       description
       memberList
       mainCategory
+			age
       secret
-			image
+			schedules {
+				_id
+			  category
+			  spot
+			  when
+			}
+			join
     }
   }
 """;
 
   static final String openSecretGroup = """
-  query (\$group: GroupPassword){
-    openSecretGroup(group: \$group){
+  query (\$_id: String, \$password: String){
+    openSecretGroup(_id: \$_id, password: \$password){
       _id
       gname
       leader
@@ -288,8 +358,15 @@ class QueryAndMutation {
       description
       memberList
       mainCategory
+			age
       secret
-			image
+			schedules {
+				_id
+			  category
+			  spot
+			  when
+			}
+			join
     }
   }
 """;
@@ -298,21 +375,55 @@ class QueryAndMutation {
   mutation (\$group: CreateGroupInput){
     createGroup(group: \$group){
       _id
+      groupName
+      leader{
+				nickname
+			}
+      createdAt
+      description
+      memberList{
+				nickname
+			}
+      mainCategory
+			age
+      secret
+			scheduleList {
+				_id
+			  category
+			  spot
+			  when
+			}
+			join
+    }
+  }
+""";
+
+  static final String editGroup = """
+  mutation (\$group: EditGroupInput){
+    editGroup(group: \$group){
+      _id
       gname
       leader
       createdAt
       description
       memberList
       mainCategory
+			age
       secret
-			image
+			schedules {
+				_id
+			  category
+			  spot
+			  when
+			}
+			join
     }
   }
 """;
 
   static final String joinGroup = """
-  mutation (\$group: JoinGroupInput){
-    joinGroup(group: \$group){
+  mutation (\$_id: String, \$email: String){
+    joinGroup(_id: \$_id, email: \$email){
       _id
       gname
       leader
@@ -320,15 +431,22 @@ class QueryAndMutation {
       description
       memberList
       mainCategory
+			age
       secret
-			image
+			schedules {
+				_id
+			  category
+			  spot
+			  when
+			}
+			join
     }
   }
 """;
 
   static final String leaveGroup = """
-  mutation (\$group: LeaveGroupInput){
-    leaveGroup(group: \$group){
+  mutation (\$_id: String, \$email: String){
+    leaveGroup(_id: \$_id, email: \$email){
       _id
       gname
       leader
@@ -336,24 +454,30 @@ class QueryAndMutation {
       description
       memberList
       mainCategory
+			age
       secret
-			image
+			schedules {
+				_id
+			  category
+			  spot
+			  when
+			}
+			join
     }
   }
 """;
 
   static final String deleteGroup = """
-  mutation (\$group: DeleteGroupInput){
-    deleteGroup(group: \$group){
-      message
-			success
+  mutation (\$_id: String, \$email: String){
+    deleteGroup(_id: \$_id, email: \$email){
+      success
     }
-  } 
+  }
 """;
 
   static final String changeLeader = """
-  mutation (\$group: ChangeLeaderInput){
-    changeLeader(group: \$group){
+  mutation (\$_id: String, \$email: String, \$newLeader: String){
+    changeLeader(_id: \$_id, email: \$email, newLeader: \$newLeader){
       _id
       gname
       leader
@@ -361,25 +485,16 @@ class QueryAndMutation {
       description
       memberList
       mainCategory
+			age
       secret
-			image
+			schedules {
+				_id
+			  category
+			  spot
+			  when
+			}
+			join
     }
   }
-""";
-
-  static final String changeGroupImage = """
-	mutation (\$group: Upload){
-		changeGroupImage(group: \$group){
-			_id
-      gname
-      leader
-      createdAt
-      description
-      memberList
-      mainCategory
-      secret
-			image
-    }
-	}
 """;
 }

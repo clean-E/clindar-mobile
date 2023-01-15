@@ -1,5 +1,7 @@
 import 'package:clindar_mobile/graphQL/query_mutation.dart';
 import 'package:clindar_mobile/provider/google_sign_in.dart';
+import 'package:clindar_mobile/provider/login_service.dart';
+import 'package:clindar_mobile/provider/set_nickname_provider.dart';
 import 'package:clindar_mobile/view/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -57,45 +59,79 @@ class _JoinPageState extends State<JoinPage> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(40),
-              child: FractionallySizedBox(
-                  widthFactor: 1,
-                  child: Mutation(
-                      options: MutationOptions(
-                        document: gql(QueryAndMutation.setNickname),
-                        update: (cache, result) {
-                          return cache;
-                        },
-                        onCompleted: ((data) {
-                          print('N Mutation data:${data}');
-                          // return HomePage();
-                        }),
-                        onError: (error) {
-                          print('N error:${error}');
-                        },
-                      ),
-                      builder: ((runMutation, result) => ElevatedButton(
-                            onPressed: () async {
-                              final user = FirebaseAuth.instance.currentUser!;
-                              runMutation({
-                                'user': {
-                                  'email': user.email,
-                                  'nickname': _nicknameController.text
-                                }
-                              });
-                              final provider =
-                                  Provider.of<GoogleSignInProvider>(context,
-                                      listen: false);
-                              await provider.googleLogin();
+                padding: EdgeInsets.all(40),
+                child: Consumer<SetNicknameProvider>(
+                  builder: (context, value, child) {
+                    WidgetsBinding.instance!.addPostFrameCallback((_) {
+                      if (value.getResponse != '') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(value.getResponse)));
+                        value.clear();
+                      }
+                    });
+                    return GestureDetector(
+                      onTap: value.getStatus == true
+                          ? null
+                          : () {
+                              if (_nicknameController.text.isNotEmpty) {
+                                value.setNickname(
+                                    email: _emailController.text,
+                                    nickname: _nicknameController.text);
+                                print(
+                                    'nicknameController : ${_nicknameController.text}');
+                              }
                             },
-                            child: Container(
-                                margin: EdgeInsets.symmetric(vertical: 15),
-                                child: Text('Register')),
-                          )))),
-            ),
+                      child: Container(
+                          padding: const EdgeInsets.all(15),
+                          margin: const EdgeInsets.all(30),
+                          decoration: BoxDecoration(
+                              color: value.getStatus == true
+                                  ? Colors.grey
+                                  : Colors.blue,
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Text(value.getStatus == true
+                              ? 'Loading...'
+                              : 'Save Task')),
+                    );
+                  },
+                )),
           ],
         ),
       ),
     );
   }
 }
+// FractionallySizedBox(
+//                   widthFactor: 1,
+//                   child: Mutation(
+//                       options: MutationOptions(
+//                         document: gql(QueryAndMutation.login),
+//                         update: (cache, result) {
+//                           return cache;
+//                         },
+//                         onCompleted: ((data) {
+//                           print('N Mutation data:${data}');
+//                           // return HomePage();
+//                         }),
+//                         onError: (error) {
+//                           print('N error:${error}');
+//                         },
+//                       ),
+//                       builder: ((runMutation, result) => ElevatedButton(
+//                             onPressed: () async {
+//                               final user = FirebaseAuth.instance.currentUser!;
+//                               runMutation({
+//                                 'userInfo': {
+//                                   'email': user.email,
+//                                   'nickname': _nicknameController.text
+//                                 }
+//                               });
+//                               final provider =
+//                                   Provider.of<GoogleSignInProvider>(context,
+//                                       listen: false);
+//                               await provider.googleLogin();
+//                             },
+//                             child: Container(
+//                                 margin: EdgeInsets.symmetric(vertical: 15),
+//                                 child: Text('Register')),
+//                           ))))
