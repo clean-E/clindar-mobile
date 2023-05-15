@@ -30,13 +30,13 @@ class _LoginServiceState extends State<LoginService> {
             } else if (snapshot.hasData) {
               // 로그인 데이터 o
               final user = FirebaseAuth.instance.currentUser!;
-              print(user.email);
+              // print(user.email);
               return Query(
                   options: QueryOptions(
                       document: gql(QueryAndMutation.getUser),
                       variables: {'email': user.email}),
                   builder: ((result, {fetchMore, refetch}) {
-                    print('result.data: ${result.data}');
+                    print('getUser : ${result.data}');
                     if (result.hasException) {
                       print('에러! : ${result.exception.toString()}');
 
@@ -69,6 +69,7 @@ class _LoginServiceState extends State<LoginService> {
                                   userInfo: result.data!['getMyPage'],
                                 );
                               } else {
+                                print(result.data!['getUser']);
                                 return HomeTabBar(
                                   mySchedules: [],
                                   userInfo: result.data!['getUser'],

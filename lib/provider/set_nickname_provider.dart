@@ -8,19 +8,19 @@ class SetNicknameProvider extends ChangeNotifier {
   String _response = '';
   bool get getStatus => _status;
   String get getResponse => _response;
-  final Config _config = Config();
 
-  void setNickname({String? email, String? nickname}) async {
+  Future setNickname({String? email, String? nickname}) async {
     _status = true;
     _response = "Please wait...";
     notifyListeners();
 
-    ValueNotifier<GraphQLClient> _client = Config.initClient();
-
-    QueryResult result = await _client.value.mutate(
+    MutationOptions mutationOptions =
         MutationOptions(document: gql(QueryAndMutation.login), variables: {
-      'userInfo': {'email': email, 'nickname': nickname}
-    }));
+      "userInfo": {"email": email, "nickname": nickname}
+    });
+
+    QueryResult result =
+        await Config.initClient().value.mutate(mutationOptions);
 
     if (result.hasException) {
       print(result.exception);
@@ -33,10 +33,11 @@ class SetNicknameProvider extends ChangeNotifier {
       notifyListeners();
     } else {
       _status = false;
-      _response = "Task was successfully added.";
-      notifyListeners();
-      print(result.data);
+      _response = "Nickname was successfully setted.";
     }
+    final resultData = result.data?["createRecord"];
+    notifyListeners();
+    return _response;
   }
 
   void clear() {

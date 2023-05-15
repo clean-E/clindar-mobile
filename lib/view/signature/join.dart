@@ -3,6 +3,7 @@ import 'package:clindar_mobile/provider/google_sign_in.dart';
 import 'package:clindar_mobile/provider/login_service.dart';
 import 'package:clindar_mobile/provider/set_nickname_provider.dart';
 import 'package:clindar_mobile/view/home.dart';
+import 'package:clindar_mobile/view/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -32,6 +33,14 @@ class _JoinPageState extends State<JoinPage> {
     super.initState();
 
     _emailController.text = user.email!;
+  }
+
+  Future createNickName(String email, String nickname) async {
+    final setNickNameValue =
+        await Provider.of<SetNicknameProvider>(context, listen: false)
+            .setNickname(email: email, nickname: nickname);
+    setState(() {});
+    ChangeNotifier();
   }
 
   @override
@@ -67,6 +76,10 @@ class _JoinPageState extends State<JoinPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(value.getResponse)));
                         value.clear();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginService()));
                       }
                     });
                     return GestureDetector(
@@ -77,9 +90,8 @@ class _JoinPageState extends State<JoinPage> {
                                 value.setNickname(
                                     email: _emailController.text,
                                     nickname: _nicknameController.text);
-                                print(
-                                    'nicknameController : ${_nicknameController.text}');
                               }
+                              print(value.getResponse);
                             },
                       child: Container(
                           padding: const EdgeInsets.all(15),
